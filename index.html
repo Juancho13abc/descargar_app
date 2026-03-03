@@ -1,0 +1,1003 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="logo (1).ico">
+    <title>GoFood - Sistema de Gestión Gastronómica</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        /* Ajustando al rojo/naranja GoFood (marca general de delivery/food) */
+                        brand: { 50: '#fff1f2', 100: '#ffe4e6', 200: '#fecdd3', 300: '#fda4af', 400: '#fb7185', 500: '#f43f5e', 600: '#e11d48', 700: '#be123c', 800: '#9f1239', 900: '#881337' },
+                        accent: { 400: '#fb923c', 500: '#f97316', 600: '#ea580c' } /* Naranja para contrastes y warnings */
+                    }
+                },
+                fontFamily: { sans: ['Inter', 'sans-serif'] },
+                animation: {
+                    'spin-slow': 'spin 12s linear infinite',
+                    'bounce-slow': 'bounce 4s infinite',
+                    'pulse-fast': 'pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    'float-delay': 'float 6s ease-in-out infinite 2s'
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            transition: background-color 0.5s ease;
+        }
+
+        #scroll-progress {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 5px;
+            background: linear-gradient(to right, #f43f5e, #f97316, #fb923c);
+            z-index: 200;
+            transition: width 0.1s ease-out;
+            box-shadow: 0 0 10px rgba(244, 63, 94, 0.5);
+        }
+
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            transition: all 0.4s ease;
+        }
+
+        .dark .glass-effect {
+            background: rgba(15, 23, 42, 0.7);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        /* Reveal on Scroll Core */
+        .reveal-on-scroll {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+            will-change: transform, opacity;
+        }
+
+        .reveal-on-scroll.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Mobile specific fixes for smoother reveals */
+        @media (max-width: 768px) {
+            .reveal-on-scroll {
+                transform: translateY(15px);
+                /* More subtle for mobile */
+                transition-duration: 0.5s;
+            }
+
+            section {
+                min-height: auto !important;
+                /* Force remove min-height */
+            }
+        }
+
+        /* Tactile Touch Feedback */
+        @media (hover: none) {
+
+            .btn-click-effect:active,
+            .card-click-effect:active {
+                transform: scale(0.96);
+                transition: transform 0.1s ease;
+            }
+        }
+
+        /* Efecto Magnético para botones */
+        .magnetic-btn {
+            transition: transform 0.2s cubic-bezier(0.33, 1, 0.68, 1);
+        }
+
+        .blob {
+            position: absolute;
+            filter: blur(70px);
+            z-index: -1;
+            opacity: 0.5;
+            transition: transform 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
+        }
+
+        .floating {
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(0px) rotate(0deg);
+            }
+
+            50% {
+                transform: translateY(-15px) rotate(1deg);
+            }
+
+            100% {
+                transform: translateY(0px) rotate(0deg);
+            }
+        }
+
+        .shimmer {
+            background: linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.3) 50%, rgba(255, 255, 255, 0) 100%);
+            background-size: 200% 100%;
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% {
+                background-position: -200% 0;
+            }
+
+            100% {
+                background-position: 200% 0;
+            }
+        }
+
+        /* Animaciones Custom para el flujo de estado */
+        .timeline::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 1.5rem;
+            width: 2px;
+            background: #e2e8f0;
+        }
+
+        .dark .timeline::before {
+            background: #334155;
+        }
+    </style>
+</head>
+
+<body
+    class="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 overflow-x-hidden antialiased transition-colors duration-300">
+
+    <!-- Barra de Progreso Superior -->
+    <div id="scroll-progress" class="w-0"></div>
+
+    <!-- Elementos de fondo decorativos -->
+    <div
+        class="blob bg-brand-500 w-96 h-96 rounded-full top-[-5%] left-[-10%] dark:opacity-20 animate-pulse duration-1000 hidden sm:block">
+    </div>
+    <div class="blob bg-accent-400 w-96 h-96 rounded-full bottom-[10%] right-[-10%] dark:opacity-20 animate-pulse duration-1000 hidden sm:block"
+        style="animation-delay: 1.5s;"></div>
+
+    <!-- Navegación -->
+    <nav class="fixed w-full z-40 glass-effect transition-all duration-300" id="navbar">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-20">
+                <div class="flex-shrink-0 flex items-center gap-2 cursor-pointer group" data-aos="fade-right">
+                    <!-- Logo GF Red Brand -->
+                    <span
+                        class="font-extrabold text-2xl sm:text-3xl tracking-tight text-slate-900 dark:text-white group-hover:text-brand-600 transition-colors truncate max-w-[150px] sm:max-w-none">GoFood</span>
+                </div>
+                <div class="hidden md:flex space-x-8 items-center" data-aos="fade-down" data-aos-delay="100">
+                    <a href="#inicio"
+                        class="text-slate-600 hover:text-brand-600 dark:text-slate-300 dark:hover:text-brand-400 font-medium transition-colors relative after:content-[''] after:absolute after:-bottom-1 after:left-0 after:w-0 after:h-0.5 after:bg-brand-600 hover:after:w-full after:transition-all">Inicio</a>
+                    <a href="#nosotros"
+                        class="text-slate-600 hover:text-brand-600 dark:text-slate-300 dark:hover:text-brand-400 font-medium transition-colors relative after:content-[''] after:absolute after:-bottom-1 after:left-0 after:w-0 after:h-0.5 after:bg-brand-600 hover:after:w-full after:transition-all">Nosotros</a>
+                    <a href="#caracteristicas"
+                        class="text-slate-600 hover:text-brand-600 dark:text-slate-300 dark:hover:text-brand-400 font-medium transition-colors relative after:content-[''] after:absolute after:-bottom-1 after:left-0 after:w-0 after:h-0.5 after:bg-brand-600 hover:after:w-full after:transition-all">Flujo
+                        y Roles</a>
+                    <a href="#requisitos"
+                        class="text-slate-600 hover:text-brand-600 dark:text-slate-300 dark:hover:text-brand-400 font-medium transition-colors relative after:content-[''] after:absolute after:-bottom-1 after:left-0 after:w-0 after:h-0.5 after:bg-brand-600 hover:after:w-full after:transition-all">Descargar</a>
+                    <button id="theme-toggle"
+                        class="text-slate-500 hover:text-accent-500 dark:text-slate-400 dark:hover:text-accent-400 transition-colors transform hover:rotate-180 duration-500"
+                        aria-label="Cambiar tema"><i class="fa-solid fa-moon text-xl" id="theme-icon"></i></button>
+                </div>
+                <div class="md:hidden flex items-center gap-1 sm:gap-2 mr-[-8px]">
+                    <button id="theme-toggle-mobile"
+                        class="p-2 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors shrink-0"><i
+                            class="fa-solid fa-moon text-xl" id="theme-icon-mobile"></i></button>
+                    <button id="mobile-menu-btn"
+                        class="p-2 text-slate-600 dark:text-slate-300 hover:text-brand-600 focus:outline-none hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors shrink-0"><i
+                            class="fa-solid fa-bars text-2xl"></i></button>
+                </div>
+            </div>
+        </div>
+        <!-- Menú Móvil -->
+        <div id="mobile-menu"
+            class="md:hidden hidden bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 w-full absolute shadow-xl z-30 transition-all">
+            <div class="px-4 pt-2 pb-6 space-y-1">
+                <a href="#inicio"
+                    class="block px-3 py-3 text-base font-medium text-slate-700 dark:text-slate-300 w-full text-center hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg btn-click-effect">Inicio</a>
+                <a href="#nosotros"
+                    class="block px-3 py-3 text-base font-medium text-slate-700 dark:text-slate-300 w-full text-center hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg btn-click-effect">Nosotros</a>
+                <a href="#caracteristicas"
+                    class="block px-3 py-3 text-base font-medium text-slate-700 dark:text-slate-300 w-full text-center hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg btn-click-effect">Flujo
+                    y Roles</a>
+                <a href="#requisitos"
+                    class="block px-3 py-3 text-base font-medium text-slate-700 dark:text-slate-300 w-full text-center hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg btn-click-effect">Instalación</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Sección Hero -->
+    <section id="inicio" class="pt-32 pb-2 sm:pt-32 sm:pb-20 lg:pt-48 lg:pb-32 relative overflow-hidden">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                <!-- Texto Hero -->
+                <div>
+                    <div data-aos="fade-right" data-aos-duration="1000">
+                        <div
+                            class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-brand-50 dark:bg-brand-900/30 text-brand-600 dark:text-brand-400 font-bold text-sm mb-8 animate-fade-in-up shadow-sm border border-brand-100 dark:border-brand-800 transition-all hover:bg-brand-100 dark:hover:bg-brand-800">
+                            <span class="flex h-2 w-2">
+                                <span
+                                    class="animate-ping absolute inline-flex h-2 w-2 rounded-full bg-brand-400 opacity-75"></span>
+                                <span class="relative inline-flex rounded-full h-2 w-2 bg-brand-500"></span>
+                            </span>
+                            <span>Sistema Operativo GoFood</span>
+                        </div>
+                        <h1
+                            class="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold leading-[1.1] mb-6 tracking-tight text-slate-900 dark:text-white">
+                            Todo tu restaurante, <br>
+                            <span
+                                class="text-transparent bg-clip-text bg-gradient-to-r from-brand-600 to-accent-500 relative inline-block group cursor-default">
+                                en perfecta sincronía.
+                                <svg class="absolute w-full h-2 sm:h-3 -bottom-1 left-0 text-accent-400 opacity-50 group-hover:opacity-100 transition-opacity"
+                                    viewBox="0 0 100 10" preserveAspectRatio="none">
+                                    <path d="M0 5 Q 50 15 100 5" stroke="currentColor" stroke-width="2"
+                                        fill="transparent" />
+                                </svg>
+                            </span>
+                        </h1>
+                        <p class="text-lg md:text-xl text-slate-600 dark:text-slate-400 mb-8 max-w-xl leading-relaxed">
+                            Desde la reservación, la confirmación del cajero, la preparación en cocina y la atención de
+                            tus meseros. Tu equipo nunca estuvo tan conectado con el cliente.</p>
+
+                        <div class="flex flex-col sm:flex-row gap-4 mb-8">
+                            <a href="#requisitos"
+                                class="magnetic-btn flex items-center justify-center gap-3 bg-brand-600 hover:bg-brand-700 text-white px-8 py-4 rounded-full font-bold text-lg transition-all transform hover:-translate-y-1 hover:shadow-2xl hover:shadow-brand-600/40 group relative overflow-hidden">
+                                <i class="fa-solid fa-download text-2xl relative z-10 animate-pulse"></i>
+                                <div class="text-left relative z-10">
+                                    <div class="text-xs font-normal opacity-90 leading-none mb-1">Descargar APK</div>
+                                    <div class="leading-none text-sm">Cliente & Staff</div>
+                                </div>
+                            </a>
+                            <a href="#flujo"
+                                class="magnetic-btn flex items-center justify-center gap-2 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-white px-8 py-4 rounded-full font-bold text-lg border border-slate-200 dark:border-slate-700 transition-all shadow-sm transform hover:-translate-y-1 group">Ver
+                                el ciclo <i
+                                    class="fa-solid fa-arrow-down group-hover:animate-bounce ml-2 text-brand-500"></i></a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Imagen Hero -->
+                <div class="relative lg:ml-auto mt-12 lg:mt-0" data-aos="zoom-in-up" data-aos-duration="1200">
+                    <div
+                        class="absolute inset-0 bg-gradient-to-tr from-brand-500/20 to-accent-400/20 rounded-full blur-3xl z-0 transform rotate-45 scale-150 animate-pulse">
+                    </div>
+
+                    <div class="relative z-10 floating">
+                        <img src="gofood_pos_v3.png" alt="Sistema POS GoFood Premium"
+                            class="w-full max-w-lg mx-auto drop-shadow-2xl rounded-[3rem] border-4 sm:border-8 border-white/20 dark:border-slate-800/50 shadow-brand-500/20 shadow-2xl"
+                            onerror="this.src='https://images.unsplash.com/photo-1556742044-3c52d6e88c02?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80'">
+                    </div>
+
+                    <!-- Notificaciones Animadas Flotantes del Flujo -->
+                    <div class="absolute top-0 -left-2 sm:top-4 sm:-left-6 md:-left-12 bg-white dark:bg-slate-800 p-2 sm:p-4 rounded-xl sm:rounded-2xl shadow-xl z-20 flex items-center gap-2 sm:gap-4 animate-bounce-slow border border-slate-100 dark:border-slate-700 scale-90 sm:scale-100"
+                        data-aos="fade-right" data-aos-delay="600">
+                        <div
+                            class="bg-accent-100 dark:bg-accent-900/40 text-accent-600 dark:text-accent-400 w-8 h-8 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl flex items-center justify-center text-sm sm:text-xl">
+                            <i class="fa-solid fa-fire-burner"></i>
+                        </div>
+                        <div>
+                            <p class="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 font-medium">Cocina</p>
+                            <p class="font-bold text-slate-800 dark:text-white text-[11px] sm:text-sm">Pedido en
+                                Preparación</p>
+                        </div>
+                    </div>
+
+                    <div class="absolute bottom-8 -right-2 sm:bottom-16 sm:-right-6 md:-right-4 bg-white dark:bg-slate-800 p-2 sm:p-4 rounded-xl sm:rounded-2xl shadow-xl z-20 flex items-center gap-2 sm:gap-4 border border-slate-100 dark:border-slate-700 animate-float-delay scale-90 sm:scale-100"
+                        data-aos="fade-left" data-aos-delay="800">
+                        <div
+                            class="bg-brand-100 dark:bg-brand-900/40 text-brand-600 w-8 h-8 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl flex items-center justify-center text-sm sm:text-xl">
+                            <i class="fa-solid fa-check-double"></i>
+                        </div>
+                        <div>
+                            <p class="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 font-medium">Cliente
+                                (App)</p>
+                            <p class="font-bold text-slate-800 dark:text-white text-[11px] sm:text-sm">Pago Confirmado
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Sección Nosotros (Quiénes Somos, Misión, Visión) -->
+    <section id="nosotros"
+        class="reveal-on-scroll py-6 sm:py-24 bg-slate-50 dark:bg-slate-900/50 relative overflow-hidden"
+        data-aos-mirror="true">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="text-center max-w-3xl mx-auto mb-8 sm:mb-16" data-aos="fade-up">
+                <h2
+                    class="inline-block px-4 py-1.5 rounded-full bg-brand-50 dark:bg-brand-900/30 border border-brand-100 dark:border-brand-800 text-brand-600 dark:text-brand-400 font-bold tracking-wide uppercase text-sm mb-4 transition-all hover:scale-105 cursor-default">
+                    Nuestra Esencia</h2>
+                <h3 class="text-3xl md:text-5xl font-bold text-slate-900 dark:text-white mb-6">Tecnología con Corazón
+                    Humano</h3>
+                <p class="text-lg text-slate-600 dark:text-slate-400">En GoFood, creemos que la mejor tecnología es la
+                    que se vuelve invisible para dejar brillar a las personas.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Quiénes Somos -->
+                <div class="bg-white dark:bg-slate-800 p-4 sm:p-8 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-700 transform transition-all hover:-translate-y-2 hover:shadow-xl group card-click-effect"
+                    data-aos="fade-up" data-aos-delay="100">
+                    <div
+                        class="w-14 h-14 bg-brand-100 dark:bg-brand-900/40 text-brand-600 dark:text-brand-400 rounded-2xl flex items-center justify-center text-2xl mb-6 group-hover:rotate-6 transition-transform">
+                        <i class="fa-solid fa-users"></i>
+                    </div>
+                    <h4 class="text-xl font-bold mb-4 text-slate-900 dark:text-white">Quiénes Somos</h4>
+                    <p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">Somos un equipo apasionado por
+                        la gastronomía y la innovación, dedicados a empoderar a los restaurantes con herramientas que
+                        simplifican el caos operativo.</p>
+                </div>
+                <!-- Misión -->
+                <div class="bg-white dark:bg-slate-800 p-4 sm:p-8 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-700 transform transition-all hover:-translate-y-2 hover:shadow-xl group card-click-effect"
+                    data-aos="fade-up" data-aos-delay="200">
+                    <div
+                        class="w-14 h-14 bg-accent-100 dark:bg-accent-900/40 text-accent-600 dark:text-accent-400 rounded-2xl flex items-center justify-center text-2xl mb-6 group-hover:rotate-6 transition-transform">
+                        <i class="fa-solid fa-bullseye"></i>
+                    </div>
+                    <h4 class="text-xl font-bold mb-4 text-slate-900 dark:text-white">Misión</h4>
+                    <p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">Facilitar una gestión
+                        impecable a través de una plataforma intuitiva que conecte cada rol del restaurante, permitiendo
+                        que el staff se enfoque en lo que importa: el cliente.</p>
+                </div>
+                <!-- Visión -->
+                <div class="bg-white dark:bg-slate-800 p-4 sm:p-8 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-700 transform transition-all hover:-translate-y-2 hover:shadow-xl group card-click-effect"
+                    data-aos="fade-up" data-aos-delay="300">
+                    <div
+                        class="w-14 h-14 bg-purple-100 dark:bg-purple-900/40 text-purple-600 dark:text-purple-400 rounded-2xl flex items-center justify-center text-2xl mb-6 group-hover:rotate-6 transition-transform">
+                        <i class="fa-solid fa-eye"></i>
+                    </div>
+                    <h4 class="text-xl font-bold mb-4 text-slate-900 dark:text-white">Visión</h4>
+                    <p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">Ser el estándar global de
+                        gestión para restaurantes que valoran tanto la eficiencia digital como la calidez de la atención
+                        humana personal.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Sección Flujo Interactivo -->
+    <section id="flujo" class="reveal-on-scroll py-4 sm:py-24 bg-white dark:bg-slate-900 relative"
+        data-aos-mirror="true">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+            <div class="text-center max-w-3xl mx-auto mb-6 sm:mb-16" data-aos="fade-up">
+                <h2
+                    class="inline-block px-4 py-1.5 rounded-full bg-brand-50 dark:bg-brand-900/30 border border-brand-100 dark:border-brand-800 text-brand-600 dark:text-brand-400 font-bold tracking-wide uppercase text-sm mb-4 shadow-sm">
+                    Comunicación Transparente</h2>
+                <h3 class="text-3xl md:text-5xl font-bold text-slate-900 dark:text-white mb-6">El seguimiento perfecto
+                    para tu Cliente</h3>
+                <p class="text-lg text-slate-600 dark:text-slate-400">Desde que pide en casa hasta que recoge, el
+                    cliente, cocina y caja están comunicados internamente de manera perfecta.</p>
+            </div>
+
+            <div
+                class="max-w-4xl mx-auto relative timeline py-4 sm:py-8 pl-14 sm:pl-0 sm:after:content-[''] sm:after:absolute sm:after:top-0 sm:after:bottom-0 sm:after:left-1/2 sm:after:w-0.5 sm:after:bg-slate-200 dark:sm:after:bg-slate-700 before:hidden sm:before:hidden">
+
+                <!-- Paso 1 -->
+                <div class="relative flex flex-col sm:flex-row items-center justify-between mb-0.5 sm:mb-16 w-full"
+                    data-aos="fade-up" data-aos-delay="100">
+                    <div class="w-full sm:w-[45%] order-2 sm:order-1 text-left sm:text-right relative">
+                        <div
+                            class="bg-slate-50 dark:bg-slate-800 p-4 sm:p-6 rounded-2xl shadow-md border border-slate-100 dark:border-slate-700 group hover:-translate-y-2 transition-transform">
+                            <h4
+                                class="font-bold text-xl text-slate-900 dark:text-white mb-2 text-brand-600 dark:text-brand-400">
+                                <i class="fa-solid fa-mobile-screen mr-2"></i> Cliente (Pick-up/Reserva)
+                            </h4>
+                            <p class="text-slate-600 dark:text-slate-400 text-sm">El cliente solicita recoger comida o
+                                envía solicitud de reservación de mesa. Empieza a monitorear desde su celular.</p>
+                        </div>
+                    </div>
+                    <div
+                        class="absolute left-[-2.5rem] sm:static sm:left-auto w-10 h-10 rounded-full bg-white dark:bg-slate-900 border-4 border-brand-500 z-10 sm:order-2 flex items-center justify-center shadow-lg shadow-brand-500/40">
+                        <div class="w-3 h-3 bg-brand-600 rounded-full animate-ping"></div>
+                    </div>
+                    <div class="hidden sm:block w-[45%] order-3 opacity-0"></div> <!-- Espaciador -->
+                </div>
+
+                <!-- Paso 2 -->
+                <div class="relative flex flex-col sm:flex-row items-center justify-between mb-0.5 sm:mb-16 w-full"
+                    data-aos="fade-up" data-aos-delay="200">
+                    <div class="hidden sm:block w-[45%] order-1 opacity-0"></div> <!-- Espaciador -->
+                    <div
+                        class="absolute left-[-2.5rem] sm:static sm:left-auto w-10 h-10 rounded-full bg-white dark:bg-slate-900 border-4 border-purple-500 z-10 sm:order-2 flex items-center justify-center shadow-lg shadow-purple-500/40">
+                    </div>
+                    <div class="w-full sm:w-[45%] order-2 sm:order-3 text-left relative">
+                        <div
+                            class="bg-slate-50 dark:bg-slate-800 p-4 sm:p-6 rounded-2xl shadow-md border border-slate-100 dark:border-slate-700 group hover:-translate-y-2 transition-transform">
+                            <h4
+                                class="font-bold text-xl text-slate-900 dark:text-white mb-2 text-purple-600 dark:text-purple-400">
+                                <i class="fa-solid fa-user-tie mr-2"></i> Admin & Cocina
+                            </h4>
+                            <p class="text-slate-600 dark:text-slate-400 text-sm">El Administrador acepta reservaciones
+                                o lanza alertas a meseros. Al mismo tiempo la <b class="text-red-500">Cocina</b> recibe
+                                la orden Pick-up para iniciarla.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Paso 3 -->
+                <div class="relative flex flex-col sm:flex-row items-center justify-between mb-0.5 sm:mb-16 w-full"
+                    data-aos="fade-up" data-aos-delay="300">
+                    <div class="w-full sm:w-[45%] order-2 sm:order-1 text-left sm:text-right relative">
+                        <div
+                            class="bg-slate-50 dark:bg-slate-800 p-4 sm:p-6 rounded-2xl shadow-md border border-slate-100 dark:border-slate-700 group hover:-translate-y-2 transition-transform">
+                            <h4
+                                class="font-bold text-xl text-slate-900 dark:text-white mb-2 text-accent-600 dark:text-accent-400">
+                                <i class="fa-solid fa-bell mr-2 animate-ring"></i> Notificación al Cliente
+                            </h4>
+                            <p class="text-slate-600 dark:text-slate-400 text-sm">Mientras todos hacen su trabajo, <b>la
+                                    app le avisa al cliente</b>: "Tu comida se está preparando" o "Reserva Confirmada".
+                            </p>
+                        </div>
+                    </div>
+                    <div
+                        class="absolute left-[-2.5rem] sm:static sm:left-auto w-10 h-10 rounded-full bg-white dark:bg-slate-900 border-4 border-accent-500 z-10 sm:order-2 flex items-center justify-center shadow-lg shadow-accent-500/40">
+                    </div>
+                    <div class="hidden sm:block w-[45%] order-3 opacity-0"></div> <!-- Espaciador -->
+                </div>
+
+                <!-- Paso 4 -->
+                <div class="relative flex flex-col sm:flex-row items-center justify-between mb-0.5 sm:mb-16 w-full"
+                    data-aos="fade-up" data-aos-delay="400">
+                    <div class="hidden sm:block w-[45%] order-1 opacity-0"></div> <!-- Espaciador -->
+                    <div
+                        class="absolute left-[-2.5rem] sm:static sm:left-auto w-10 h-10 rounded-full bg-white dark:bg-slate-900 border-4 border-emerald-500 z-10 sm:order-2 flex items-center justify-center shadow-lg shadow-emerald-500/40">
+                    </div>
+                    <div class="w-full sm:w-[45%] order-2 sm:order-3 text-left relative">
+                        <div
+                            class="bg-slate-50 dark:bg-slate-800 p-4 sm:p-6 rounded-2xl shadow-md border border-slate-100 dark:border-slate-700 group hover:-translate-y-2 transition-transform">
+                            <h4
+                                class="font-bold text-xl text-slate-900 dark:text-white mb-2 text-emerald-600 dark:text-emerald-400">
+                                <i class="fa-solid fa-cash-register mr-2"></i> Cajero & Recogida
+                            </h4>
+                            <p class="text-slate-600 dark:text-slate-400 text-sm">El cajero recibe y asienta el pago
+                                <b>en el local</b>. La app notifica al cliente que el pago se recibió y que ya puede
+                                acercarse al mostrador a recogerla.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Sección Roles y Módulos -->
+    <section id="caracteristicas" class="reveal-on-scroll py-4 sm:py-24 bg-brand-50/50 dark:bg-slate-900/50 relative"
+        data-aos-mirror="true">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-10 sm:mb-20" data-aos="fade-up">
+                <h2
+                    class="inline-block px-4 py-1.5 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-brand-600 dark:text-brand-400 font-bold tracking-wide uppercase text-sm mb-4 shadow-sm">
+                    Administración Interna</h2>
+                <h3 class="text-3xl md:text-5xl font-bold text-slate-900 dark:text-white mb-6">Módulos adaptados a cada
+                    Rol</h3>
+                <p class="text-lg text-slate-600 dark:text-slate-400">Inicia sesión con tus credenciales. La app ajusta
+                    sus funciones garantizando el flujo perfecto entre mesa, cocina, y caja.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+
+                <!-- Rol: Administrador -->
+                <div class="bg-white dark:bg-slate-800 rounded-3xl p-8 hover:-translate-y-2 transition-all duration-500 border border-slate-100 dark:border-slate-700 shadow-sm hover:shadow-2xl hover:border-purple-200 dark:hover:border-purple-800 group cursor-default card-click-effect"
+                    data-aos="fade-up" data-aos-delay="100">
+                    <div
+                        class="w-16 h-16 bg-purple-100 dark:bg-purple-900/40 rounded-2xl flex items-center justify-center text-purple-600 dark:text-purple-400 text-3xl mb-6 group-hover:scale-110 group-hover:bg-purple-600 group-hover:text-white transition-all duration-300">
+                        <i class="fa-solid fa-user-tie"></i>
+                    </div>
+                    <h4 class="text-2xl font-bold text-slate-900 dark:text-white mb-3">1. Administrador</h4>
+                    <ul class="text-slate-600 dark:text-slate-400 space-y-2 text-sm leading-relaxed">
+                        <li><i class="fa-solid fa-check text-brand-500 mr-2"></i> <b>Aceptar Reservaciones:</b> Valida y
+                            asigna reservas, enviando notificaciones para recordar al mesero, cajero y cocina.</li>
+                        <li><i class="fa-solid fa-check text-brand-500 mr-2"></i> Creación de cuentas y control general
+                            (Menú/Mesas).</li>
+                        <li><i class="fa-solid fa-check text-brand-500 mr-2"></i> Reportes de ventas e inventario
+                            general.</li>
+                    </ul>
+                </div>
+
+                <!-- Rol: Cajero -->
+                <div class="bg-white dark:bg-slate-800 rounded-3xl p-8 hover:-translate-y-2 transition-all duration-500 border border-slate-100 dark:border-slate-700 shadow-sm hover:shadow-2xl hover:border-emerald-200 dark:hover:border-emerald-800 group cursor-default card-click-effect"
+                    data-aos="fade-up" data-aos-delay="200">
+                    <div
+                        class="w-16 h-16 bg-emerald-100 dark:bg-emerald-900/40 rounded-2xl flex items-center justify-center text-emerald-600 dark:text-emerald-400 text-3xl mb-6 group-hover:scale-110 group-hover:bg-emerald-600 group-hover:text-white transition-all duration-300">
+                        <i class="fa-solid fa-cash-register"></i>
+                    </div>
+                    <h4 class="text-2xl font-bold text-slate-900 dark:text-white mb-3">2. Cajero</h4>
+                    <ul class="text-slate-600 dark:text-slate-400 space-y-2 text-sm leading-relaxed">
+                        <li><i class="fa-solid fa-check text-brand-500 mr-2"></i> <b>Asentamiento de Pagos:</b> Los
+                            pagos *no se hacen en la app*. El cajero registra los pagos físicos o tarjeta del local.
+                        </li>
+                        <li><i class="fa-solid fa-check text-brand-500 mr-2"></i> Generación y entrega de recibos o
+                            tickets de pago al cliente.</li>
+                        <li><i class="fa-solid fa-check text-brand-500 mr-2"></i> Cierre de facturación de las mesas y
+                            reservas recibidas.</li>
+                    </ul>
+                </div>
+
+                <!-- Rol: Cocinero -->
+                <div class="bg-white dark:bg-slate-800 rounded-3xl p-8 hover:-translate-y-2 transition-all duration-500 border border-slate-100 dark:border-slate-700 shadow-sm hover:shadow-2xl hover:border-red-200 dark:hover:border-red-800 group cursor-default card-click-effect"
+                    data-aos="fade-up" data-aos-delay="300">
+                    <div
+                        class="w-16 h-16 bg-red-100 dark:bg-red-900/40 rounded-2xl flex items-center justify-center text-red-600 dark:text-red-400 text-3xl mb-6 group-hover:scale-110 group-hover:bg-red-600 group-hover:text-white transition-all duration-300">
+                        <i class="fa-solid fa-fire-burner"></i>
+                    </div>
+                    <h4 class="text-2xl font-bold text-slate-900 dark:text-white mb-3">3. Cocinero</h4>
+                    <ul class="text-slate-600 dark:text-slate-400 space-y-2 text-sm leading-relaxed">
+                        <li><i class="fa-solid fa-check text-brand-500 mr-2"></i> Visualización en pantalla para la
+                            preparación (KDS).</li>
+                        <li><i class="fa-solid fa-check text-brand-500 mr-2"></i> Accionar estados de platos que
+                            disparan alertas a meseros o clientes.</li>
+                        <li><i class="fa-solid fa-check text-brand-500 mr-2"></i> Visualización de notas especiales de
+                            pedidos generados por el mesero.</li>
+                    </ul>
+                </div>
+
+                <!-- Rol: Mesero -->
+                <div class="bg-white dark:bg-slate-800 rounded-3xl p-8 hover:-translate-y-2 transition-all duration-500 border border-slate-100 dark:border-slate-700 shadow-sm hover:shadow-2xl hover:border-blue-200 dark:hover:border-blue-800 group cursor-default md:col-span-2 lg:col-span-1 card-click-effect"
+                    data-aos="fade-up" data-aos-delay="400">
+                    <div
+                        class="w-16 h-16 bg-blue-100 dark:bg-blue-900/40 rounded-2xl flex items-center justify-center text-blue-600 dark:text-blue-400 text-3xl mb-6 group-hover:scale-110 group-hover:bg-blue-600 group-hover:text-white transition-all duration-300">
+                        <i class="fa-solid fa-clipboard-user"></i>
+                    </div>
+                    <h4 class="text-2xl font-bold text-slate-900 dark:text-white mb-3">4. Mesero</h4>
+                    <ul class="text-slate-600 dark:text-slate-400 space-y-2 text-sm leading-relaxed">
+                        <li><i class="fa-solid fa-check text-brand-500 mr-2"></i> <b>El calor humano:</b> Toma notas
+                            digitales en mesa y charla con el cliente. No hay apps para pedir en sala.</li>
+                        <li><i class="fa-solid fa-check text-brand-500 mr-2"></i> Recepción de recordatorios del
+                            Administrador sobre mesas reservadas por llegar.</li>
+                        <li><i class="fa-solid fa-check text-brand-500 mr-2"></i> Recepción de platillos listos desde
+                            cocina para entregar calientes y rápido.</li>
+                    </ul>
+                </div>
+
+                <!-- Rol: Cliente -->
+                <div class="bg-white dark:bg-slate-800 rounded-3xl p-8 hover:-translate-y-2 transition-all duration-500 border border-slate-100 dark:border-slate-700 shadow-sm hover:shadow-2xl hover:border-brand-200 dark:hover:border-brand-800 group cursor-default md:col-span-2 lg:col-span-2 card-click-effect"
+                    data-aos="fade-up" data-aos-delay="500">
+                    <div
+                        class="w-16 h-16 bg-brand-100 dark:bg-brand-900/40 rounded-2xl flex items-center justify-center text-brand-600 dark:text-brand-400 text-3xl mb-6 group-hover:scale-110 group-hover:bg-brand-600 group-hover:text-white transition-all duration-300">
+                        <i class="fa-solid fa-mobile-screen"></i>
+                    </div>
+                    <h4 class="text-2xl font-bold text-slate-900 dark:text-white mb-3">5. Cliente (App Móvil)</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <ul class="text-slate-600 dark:text-slate-400 space-y-2 text-sm leading-relaxed">
+                            <li><i class="fa-solid fa-check text-brand-500 mr-2"></i> <b>Reservas y Pickups:</b>
+                                Gestiona pedidos a domicilio. La app le avisa cuando la comida de pickup ("Para llevar")
+                                está lista.</li>
+                            <li><i class="fa-solid fa-check text-brand-500 mr-2"></i> <b>Estado Pago Visual:</b> Recibe
+                                el recibo y comprobante de que el Cajero confirmó el pago de su orden.</li>
+                        </ul>
+                        <ul class="text-slate-600 dark:text-slate-400 space-y-2 text-sm leading-relaxed">
+                            <li><i class="fa-solid fa-mug-hot text-brand-500 mr-2"></i> En mesa, invitamos al cliente a
+                                guardar la pantalla. ¡El mesero se encarga de ofrecer una cómoda y grata atención
+                                personal!</li>
+                        </ul>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Sección Descarga / Requisitos -->
+    <section id="requisitos"
+        class="reveal-on-scroll py-4 sm:py-24 bg-slate-900 relative overflow-hidden text-center lg:text-left"
+        data-aos-mirror="true">
+        <div class="absolute inset-0 bg-brand-500/10 backdrop-blur-3xl z-0 pointer-events-none"></div>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+
+            <div class="bg-black/40 rounded-[3rem] overflow-hidden shadow-2xl border border-white/5 relative transform transition-all hover:shadow-brand-500/30"
+                data-aos="zoom-in" data-aos-duration="800">
+                <!-- Elementos de diseño de fondo -->
+                <div class="absolute -top-24 -right-24 w-64 h-64 bg-brand-600 rounded-full blur-3xl opacity-20"></div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 relative z-10 items-center">
+                    <div class="p-8 sm:p-12 md:p-16 lg:p-20 text-white flex flex-col justify-center">
+                        <span
+                            class="bg-white/10 text-brand-300 px-4 py-1.5 rounded-full text-xs font-semibold w-max mb-6 backdrop-blur-sm border border-white/10 flex items-center gap-2 mx-auto lg:mx-0 shadow-[0_0_15px_rgba(244,63,94,0.3)]">
+                            <span class="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span> Instalador Multi-Rol
+                        </span>
+                        <h2 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold mb-6 leading-tight">
+                            Implementa GoFood
+                            hoy.</h2>
+                        <p class="text-slate-300 text-base sm:text-lg mb-8 leading-relaxed">Conecta a la perfección la
+                            cocina, al
+                            cajero, las notificaciones del administrador y tus meseros en una sola app fluida.</p>
+
+                        <div class="bg-white/5 rounded-2xl p-4 sm:p-6 mb-10 border border-white/10 backdrop-blur-md">
+                            <div class="flex items-center gap-4">
+                                <div
+                                    class="bg-green-500/20 text-green-400 p-3 sm:p-4 rounded-xl text-2xl sm:text-3xl shadow-inner">
+                                    <i class="fa-brands fa-android"></i>
+                                </div>
+                                <div class="text-left">
+                                    <p class="font-bold text-lg sm:text-xl text-white">Android .APK</p>
+                                    <p class="text-[11px] sm:text-sm text-slate-400 mt-1">Staff & POS Systems</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="text-center lg:text-left">
+                            <a href="app-debug.apk"
+                                class="download-btn inline-flex items-center justify-center gap-4 bg-brand-600 text-white hover:bg-brand-500 px-6 sm:px-8 py-4 sm:py-5 rounded-full font-bold text-lg sm:text-xl transition-all transform hover:-translate-y-1 shadow-[0_10px_30px_rgba(225,29,72,0.4)] w-full sm:w-auto group btn-click-effect">
+                                <i
+                                    class="fa-solid fa-cloud-arrow-down text-xl sm:text-2xl group-hover:animate-bounce"></i>
+                                Descargar APK
+                            </a>
+                        </div>
+                    </div>
+
+                    <div
+                        class="hidden lg:flex flex-col items-center justify-center p-14 relative h-full bg-white/5 border-l border-white/5">
+                        <h4 class="text-white text-2xl font-bold mb-8 text-center"><i
+                                class="fa-solid fa-gears text-brand-400 mr-2 animate-spin-slow"></i> Guía de Instalación
+                        </h4>
+                        <div class="space-y-6 max-w-sm">
+                            <div
+                                class="bg-black/30 border border-white/10 p-5 rounded-2xl flex items-start gap-4 hover:border-brand-500/50 transition-colors">
+                                <span
+                                    class="bg-brand-600 text-white font-bold w-10 h-10 rounded-xl flex items-center justify-center shrink-0 text-lg shadow-lg">1</span>
+                                <p class="pt-1 text-slate-300">Descarga <b>app-debug.apk</b> al dispositivo Android de
+                                    tu restaurante.</p>
+                            </div>
+                            <div
+                                class="bg-black/30 border border-white/10 p-5 rounded-2xl flex items-start gap-4 hover:border-brand-500/50 transition-colors">
+                                <span
+                                    class="bg-brand-600 text-white font-bold w-10 h-10 rounded-xl flex items-center justify-center shrink-0 text-lg shadow-lg">2</span>
+                                <p class="pt-1 text-slate-300">Autoriza <b>Orígenes Desconocidos</b> en los Ajustes >
+                                    Seguridad.</p>
+                            </div>
+                            <div
+                                class="bg-black/30 border border-white/10 p-5 rounded-2xl flex items-start gap-4 hover:border-brand-500/50 transition-colors">
+                                <span
+                                    class="bg-brand-600 text-white font-bold w-10 h-10 rounded-xl flex items-center justify-center shrink-0 text-lg shadow-lg">3</span>
+                                <p class="pt-1 text-slate-300">Abre y loguea el Rol. Interfaz de Administrador, Caja,
+                                    etc. ¡automática!</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer Premium -->
+    <footer class="bg-slate-950 border-t border-slate-800 text-slate-400 pt-6 pb-4 relative overflow-hidden">
+        <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-brand-500/50 to-transparent">
+        </div>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-12 mb-8 sm:mb-16">
+                <!-- Column 1: Brand -->
+                <div class="space-y-6" data-aos="fade-up">
+                    <div class="flex items-center gap-4">
+                        <div
+                            class="w-12 h-12 bg-white rounded-xl flex items-center justify-center p-2 shadow-lg shadow-brand-500/20">
+                            <img src="logo.png" alt="GoFood Logo" class="w-full h-full object-contain">
+                        </div>
+                        <h3 class="text-2xl font-bold text-white tracking-tight">GoFood</h3>
+                    </div>
+                    <p class="text-slate-400 text-sm leading-relaxed">
+                        Transformando la gestión de restaurantes con tecnología de vanguardia y un enfoque humano
+                        inigualable.
+                    </p>
+                    <div class="flex gap-4">
+                        <a href="#"
+                            class="w-10 h-10 rounded-lg bg-slate-900 flex items-center justify-center hover:bg-brand-600 hover:text-white transition-all"><i
+                                class="fa-brands fa-facebook"></i></a>
+                        <a href="#"
+                            class="w-10 h-10 rounded-lg bg-slate-900 flex items-center justify-center hover:bg-brand-600 hover:text-white transition-all"><i
+                                class="fa-brands fa-instagram"></i></a>
+                        <a href="#"
+                            class="w-10 h-10 rounded-lg bg-slate-900 flex items-center justify-center hover:bg-brand-600 hover:text-white transition-all"><i
+                                class="fa-brands fa-whatsapp"></i></a>
+                    </div>
+                </div>
+
+                <!-- Column 2: Navegación -->
+                <div class="space-y-6" data-aos="fade-up" data-aos-delay="100">
+                    <h4 class="text-white font-bold text-lg">Navegación</h4>
+                    <ul class="space-y-3">
+                        <li><a href="#inicio" class="hover:text-brand-500 transition-colors flex items-center gap-2"><i
+                                    class="fa-solid fa-chevron-right text-[10px]"></i> Inicio</a></li>
+                        <li><a href="#nosotros"
+                                class="hover:text-brand-500 transition-colors flex items-center gap-2"><i
+                                    class="fa-solid fa-chevron-right text-[10px]"></i> Quiénes Somos</a></li>
+                        <li><a href="#caracteristicas"
+                                class="hover:text-brand-500 transition-colors flex items-center gap-2"><i
+                                    class="fa-solid fa-chevron-right text-[10px]"></i> Flujo y Roles</a></li>
+                        <li><a href="#requisitos"
+                                class="hover:text-brand-500 transition-colors flex items-center gap-2"><i
+                                    class="fa-solid fa-chevron-right text-[10px]"></i> Descarga</a></li>
+                    </ul>
+                </div>
+
+                <!-- Column 3: Soporte -->
+                <div class="space-y-6" data-aos="fade-up" data-aos-delay="200">
+                    <h4 class="text-white font-bold text-lg">Soporte Tecnológico</h4>
+                    <ul class="space-y-3 text-sm">
+                        <li class="flex items-center gap-3"><i class="fa-solid fa-code text-brand-500"></i> API
+                            Documentation</li>
+                        <li class="flex items-center gap-3"><i class="fa-solid fa-shield-halved text-brand-500"></i>
+                            Privacidad y Seguridad</li>
+                        <li class="flex items-center gap-3"><i class="fa-solid fa-book text-brand-500"></i> Manual del
+                            Usuario</li>
+                    </ul>
+                </div>
+
+                <!-- Column 4: Newsletter/Download -->
+                <div class="space-y-6" data-aos="fade-up" data-aos-delay="300">
+                    <h4 class="text-white font-bold text-lg">Prueba la App</h4>
+                    <p class="text-slate-400 text-sm">Escanea o descarga directamente el instalador APK hoy mismo.</p>
+                    <a href="#requisitos"
+                        class="inline-flex items-center gap-2 bg-gradient-to-r from-brand-600 to-accent-500 text-white px-6 py-3 rounded-xl font-bold text-sm tracking-wide hover:shadow-[0_0_20px_rgba(244,63,94,0.3)] transition-all">
+                        <i class="fa-solid fa-download"></i> Descargar APK
+                    </a>
+                </div>
+            </div>
+
+            <div class="border-t border-slate-900 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+                <p class="text-xs text-slate-500">&copy; 2026 GoFood Corporation. Todos los derechos reservados.</p>
+                <div class="flex gap-6 text-xs">
+                    <a href="#" class="hover:text-white transition-colors">Términos de Servicio</a>
+                    <a href="#" class="hover:text-white transition-colors">Política de Privacidad</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Modal de Descarga Estilizado (Carga Simulada) -->
+    <div id="download-modal" class="fixed inset-0 z-[100] hidden flex items-center justify-center">
+        <div class="absolute inset-0 bg-slate-900/90 backdrop-blur-md transition-opacity duration-300 opacity-0"
+            id="modal-backdrop"></div>
+        <div class="bg-white dark:bg-slate-800 rounded-3xl p-8 max-w-sm w-full mx-4 relative z-10 shadow-[0_20px_50px_rgba(225,29,72,0.2)] transform scale-95 opacity-0 transition-all duration-300 border border-slate-100 dark:border-slate-700"
+            id="modal-content">
+            <div class="relative w-32 h-32 mx-auto mb-6 flex items-center justify-center">
+                <img src="logo.png" alt="GoFood Logo" class="w-full h-full object-contain relative z-10 animate-bounce">
+                <div class="absolute inset-0 rounded-2xl border-4 border-brand-500 border-t-transparent animate-spin"
+                    id="spinner"></div>
+            </div>
+            <h3 class="text-3xl font-bold mb-2 text-center text-slate-900 dark:text-white" id="modal-title">Iniciando
+                Compilación...</h3>
+            <p class="text-slate-500 dark:text-slate-400 mb-6 text-center text-sm leading-relaxed"
+                id="modal-description">
+                Descargando sistema base. Roles de Mesa, Cocina, Caja y Admin listos para usarse tras el inicio de
+                sesión.<br>
+            </p>
+            <div
+                class="w-full bg-slate-100 dark:bg-slate-900 rounded-full h-4 mb-3 overflow-hidden relative shadow-inner">
+                <div id="progress-bar"
+                    class="h-full rounded-full w-0 transition-all duration-300 relative bg-gradient-to-r from-brand-600 to-accent-500">
+                    <div class="absolute top-0 left-0 w-full h-full bg-white/20 animate-[pulse_1s_infinite]"></div>
+                </div>
+            </div>
+            <div
+                class="flex justify-between text-xs font-bold mb-6 text-brand-600 dark:text-brand-400 uppercase tracking-widest">
+                <span id="status-text">Conectando...</span><span id="progress-text">0%</span>
+            </div>
+            <button id="close-modal"
+                class="w-full py-3.5 rounded-xl bg-slate-900 text-white dark:bg-brand-600 dark:text-white font-bold hover:scale-105 transition-all hidden shadow-lg uppercase tracking-wider text-sm">Cerrar
+                y Ver Archivo</button>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        // AOS Initialization with Mobile Optimization
+        AOS.init({
+            duration: 600,
+            offset: window.innerWidth < 768 ? 0 : 120, // Zero offset for mobile to prevent "empty space" feel
+            easing: 'ease-out-quint',
+            once: false,
+            mirror: true,
+            anchorPlacement: 'top-bottom',
+            disable: false
+        });
+
+        // Hybrid Reveal Observer (Para asegurar animación al subir)
+        const revealOptions = { threshold: 0.1, rootMargin: "0px 0px -50px 0px" };
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                } else {
+                    entry.target.classList.remove('active'); // Opcional: permite que se re-anime al volver a entrar
+                }
+            });
+        }, revealOptions);
+
+        // Aplicar a secciones principales
+        document.querySelectorAll('section, .reveal-on-scroll').forEach(el => observer.observe(el));
+
+        // Botones Magnéticos
+        const magneticBtns = document.querySelectorAll('.magnetic-btn');
+        magneticBtns.forEach(btn => {
+            btn.addEventListener('mousemove', (e) => {
+                const rect = btn.getBoundingClientRect();
+                const x = e.clientX - rect.left - rect.width / 2;
+                const y = e.clientY - rect.top - rect.height / 2;
+                btn.style.transform = `translate(${x * 0.3}px, ${y * 0.3}px) scale(1.05)`;
+            });
+            btn.addEventListener('mouseleave', () => {
+                btn.style.transform = `translate(0px, 0px) scale(1)`;
+            });
+        });
+
+        // Efecto Parallax y Barra de Progreso
+        window.addEventListener('scroll', () => {
+            const scrolled = window.scrollY;
+            const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
+            const progress = (scrolled / scrollHeight) * 100;
+
+            document.getElementById('scroll-progress').style.width = progress + '%';
+
+            const blobs = document.querySelectorAll('.blob');
+            blobs.forEach((blob, index) => {
+                const speed = (index + 1) * 0.15;
+                blob.style.transform = `translateY(${scrolled * speed}px) rotate(${scrolled * 0.05}deg)`;
+            });
+
+            const navbar = document.getElementById('navbar');
+            if (scrolled > 50) {
+                navbar.classList.add('py-2', 'shadow-2xl', 'bg-white/90', 'dark:bg-slate-900/90');
+                navbar.classList.remove('py-4', 'bg-white/70', 'dark:bg-slate-900/70');
+            } else {
+                navbar.classList.remove('py-2', 'shadow-2xl', 'bg-white/90', 'dark:bg-slate-900/90');
+                navbar.classList.add('py-4', 'bg-white/70', 'dark:bg-slate-900/70');
+            }
+        });
+
+        // Tema oscuro/claro
+        const themeToggleBtn = document.getElementById('theme-toggle');
+        const themeIcon = document.getElementById('theme-icon');
+        const themeToggleMobileBtn = document.getElementById('theme-toggle-mobile');
+        const themeIconMobile = document.getElementById('theme-icon-mobile');
+        const htmlElement = document.documentElement;
+
+        function setTheme(isDark) {
+            if (isDark) {
+                htmlElement.classList.add('dark');
+                themeIcon.classList.replace('fa-moon', 'fa-sun');
+                themeIconMobile.classList.replace('fa-moon', 'fa-sun');
+                localStorage.setItem('theme', 'dark');
+            } else {
+                htmlElement.classList.remove('dark');
+                themeIcon.classList.replace('fa-sun', 'fa-moon');
+                themeIconMobile.classList.replace('fa-sun', 'fa-moon');
+                localStorage.setItem('theme', 'light');
+            }
+        }
+
+        if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) { setTheme(true); } else { setTheme(false); }
+        const handleToggle = () => { setTheme(!htmlElement.classList.contains('dark')); };
+        themeToggleBtn.addEventListener('click', handleToggle);
+        themeToggleMobileBtn.addEventListener('click', handleToggle);
+
+        // Menú móvil
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        mobileMenuBtn.addEventListener('click', () => { mobileMenu.classList.toggle('hidden'); });
+        mobileMenu.querySelectorAll('a').forEach(link => { link.addEventListener('click', () => { mobileMenu.classList.add('hidden'); }); });
+
+        // Navbar scroll effect
+        window.addEventListener('scroll', () => {
+            const navbar = document.getElementById('navbar');
+            if (window.scrollY > 20) { navbar.classList.add('shadow-md'); } else { navbar.classList.remove('shadow-md'); }
+        });
+
+        // Lógica del Modal de Descarga
+        const downloadBtns = document.querySelectorAll('.download-btn');
+        const modal = document.getElementById('download-modal');
+        const backdrop = document.getElementById('modal-backdrop');
+        const modalContent = document.getElementById('modal-content');
+        const progressBar = document.getElementById('progress-bar');
+        const progressText = document.getElementById('progress-text');
+        const statusText = document.getElementById('status-text');
+        const closeModalBtn = document.getElementById('close-modal');
+        const spinner = document.getElementById('spinner');
+        const modalTitle = document.getElementById('modal-title');
+        const modalDescription = document.getElementById('modal-description');
+
+        let isDownloading = false;
+
+        downloadBtns.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                if (isDownloading) return;
+
+                const url = btn.getAttribute('href') || 'app-debug.apk';
+
+                modal.classList.remove('hidden');
+                void modal.offsetWidth;
+
+                backdrop.classList.remove('opacity-0');
+                backdrop.classList.add('opacity-100');
+                modalContent.classList.remove('scale-95', 'opacity-0');
+                modalContent.classList.add('scale-100', 'opacity-100');
+
+                closeModalBtn.classList.add('hidden');
+                progressBar.style.width = '0%';
+                progressText.innerText = '0%';
+                statusText.innerText = 'Conectando Servidor...';
+                spinner.classList.remove('hidden');
+                modalTitle.innerText = 'Preparando GoFood';
+                modalDescription.innerText = 'Descargando sistema base. Roles de Mesa, Cocina, Caja y Admin listos para usarse tras el inicio de sesión.';
+                progressBar.className = 'h-full rounded-full w-0 transition-all duration-300 relative bg-gradient-to-r from-brand-600 to-accent-500';
+
+                isDownloading = true;
+                let progress = 0;
+
+                const interval = setInterval(() => {
+                    progress += Math.random() * 12 + 3;
+                    if (progress > 100) progress = 100;
+
+                    progressBar.style.width = `${progress}%`;
+                    progressText.innerText = `${Math.floor(progress)}%`;
+
+                    if (progress > 15 && progress < 40) statusText.innerText = 'Empaquetando APK...';
+                    if (progress >= 40 && progress < 70) statusText.innerText = 'Enlazando Base de Datos...';
+                    if (progress >= 70 && progress < 95) statusText.innerText = 'Validando Seguridad...';
+                    if (progress >= 95 && progress < 100) statusText.innerText = 'Generando Enlace...';
+
+                    if (progress === 100) {
+                        clearInterval(interval);
+                        statusText.innerText = '¡Proceso Terminado!';
+                        spinner.classList.add('hidden');
+                        modalTitle.innerText = '¡Descarga Exitosa!';
+                        progressBar.classList.remove('from-brand-600', 'to-accent-500');
+                        progressBar.classList.add('bg-green-500');
+
+                        setTimeout(() => {
+                            isDownloading = false;
+                            const a = document.createElement('a');
+                            a.href = url;
+                            a.download = 'app-debug.apk';
+                            document.body.appendChild(a);
+                            a.click();
+                            document.body.removeChild(a);
+
+                            closeModalBtn.classList.remove('hidden');
+                        }, 800);
+                    }
+                }, 500); // 500ms hace que la barra sea fluida pero parezca real
+            });
+        });
+
+        const closeModal = () => {
+            if (isDownloading) return;
+            modalContent.classList.remove('scale-100', 'opacity-100');
+            modalContent.classList.add('scale-95', 'opacity-0');
+            backdrop.classList.remove('opacity-100');
+            backdrop.classList.add('opacity-0');
+
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300);
+        };
+
+        closeModalBtn.addEventListener('click', closeModal);
+        backdrop.addEventListener('click', closeModal);
+
+    </script>
+</body>
+
+</html>
