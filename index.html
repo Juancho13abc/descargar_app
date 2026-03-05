@@ -264,6 +264,61 @@
             background-color: #1e293b !important;
             /* Slate 800 */
         }
+
+        /* Burger Rain System */
+        .burger-particle {
+            position: fixed;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.15;
+            will-change: transform;
+            animation: fall linear infinite;
+        }
+
+        @keyframes fall {
+            0% {
+                transform: translateY(-10vh) rotate(0deg);
+                opacity: 0;
+            }
+
+            10% {
+                opacity: 0.15;
+            }
+
+            90% {
+                opacity: 0.15;
+            }
+
+            100% {
+                transform: translateY(110vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        /* Hover-Lift Effects Premium */
+        .hover-lift {
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.4s ease;
+        }
+
+        .hover-lift:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(249, 115, 22, 0.1);
+        }
+
+        .dark .hover-lift:hover {
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        /* Burger Icon Styling */
+        .burger-icon {
+            color: #f97316;
+            filter: drop-shadow(0 0 5px rgba(249, 115, 22, 0.3));
+        }
+
+        /* Smoothing the Scroll Progress Shadow */
+        #scroll-progress {
+            box-shadow: 0 0 15px rgba(249, 115, 22, 0.4);
+        }
     </style>
 </head>
 
@@ -325,7 +380,7 @@
                     class="block px-3 py-3 text-base font-medium text-[#111827] dark:text-slate-300 w-full text-center hover:bg-[#F3F4F6] dark:hover:bg-slate-800 rounded-lg btn-click-effect">Flujo
                     y Roles</a>
                 <a href="#requisitos"
-                    class="block px-3 py-3 text-base font-medium text-[#111827] dark:text-slate-300 w-full text-center hover:bg-[#F3F4F6] dark:hover:bg-slate-800 rounded-lg btn-click-effect">Instalación</a>
+                    class="block px-3 py-3 text-base font-medium text-[#111827] dark:text-slate-300 w-full text-center hover:bg-[#F3F4F6] dark:hover:bg-slate-800 rounded-lg btn-click-effect hover-lift">Instalación</a>
             </div>
         </div>
     </nav>
@@ -365,7 +420,7 @@
 
                         <div class="flex flex-col sm:flex-row gap-4 mb-8">
                             <a href="#requisitos"
-                                class="magnetic-btn flex items-center justify-center gap-3 bg-brand-600 hover:bg-brand-700 text-white px-8 py-4 rounded-full font-bold text-lg transition-all transform hover:-translate-y-1 hover:shadow-2xl hover:shadow-brand-600/40 group relative overflow-hidden">
+                                class="magnetic-btn flex items-center justify-center gap-3 bg-brand-600 hover:bg-brand-700 text-white px-8 py-4 rounded-full font-bold text-lg transition-all transform hover:-translate-y-1 hover:shadow-2xl hover:shadow-brand-600/40 group relative overflow-hidden hover-lift">
                                 <i class="fa-solid fa-download text-2xl relative z-10 animate-pulse"></i>
                                 <div class="text-left relative z-10">
                                     <div class="text-xs font-normal opacity-90 leading-none mb-1">Descargar APK</div>
@@ -373,7 +428,7 @@
                                 </div>
                             </a>
                             <a href="#flujo"
-                                class="magnetic-btn flex items-center justify-center gap-2 bg-white dark:bg-slate-800 hover:bg-[#F3F4F6] dark:hover:bg-slate-700 text-[#111827] dark:text-white px-8 py-4 rounded-full font-bold text-lg border border-slate-200 dark:border-slate-700 transition-all shadow-sm transform hover:-translate-y-1 group">Ver
+                                class="magnetic-btn flex items-center justify-center gap-2 bg-white dark:bg-slate-800 hover:bg-[#F3F4F6] dark:hover:bg-slate-700 text-[#111827] dark:text-white px-8 py-4 rounded-full font-bold text-lg border border-slate-200 dark:border-slate-700 transition-all shadow-sm transform hover:-translate-y-1 group hover-lift">Ver
                                 el ciclo <i
                                     class="fa-solid fa-arrow-down group-hover:animate-bounce ml-2 text-brand-500"></i></a>
                         </div>
@@ -441,7 +496,7 @@
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                 <!-- Quiénes Somos -->
-                <div class="bg-white dark:bg-slate-800 p-4 sm:p-8 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-700 transform transition-all hover:-translate-y-2 hover:shadow-xl group card-click-effect"
+                <div class="bg-white dark:bg-slate-800 p-4 sm:p-8 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-700 transform transition-all hover:-translate-y-2 hover:shadow-xl group card-click-effect hover-lift"
                     data-aos="fade-up" data-aos-delay="100">
                     <div
                         class="w-14 h-14 bg-brand-100 dark:bg-brand-900/40 text-brand-600 dark:text-brand-400 rounded-2xl flex items-center justify-center text-2xl mb-6 group-hover:rotate-6 transition-transform">
@@ -453,7 +508,7 @@
                         simplifican el caos operativo.</p>
                 </div>
                 <!-- Misión -->
-                <div class="bg-white dark:bg-slate-800 p-4 sm:p-8 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-700 transform transition-all hover:-translate-y-2 hover:shadow-xl group card-click-effect"
+                <div class="bg-white dark:bg-slate-800 p-4 sm:p-8 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-700 transform transition-all hover:-translate-y-2 hover:shadow-xl group card-click-effect hover-lift"
                     data-aos="fade-up" data-aos-delay="200">
                     <div
                         class="w-14 h-14 bg-accent-100 dark:bg-accent-900/40 text-accent-600 dark:text-accent-400 rounded-2xl flex items-center justify-center text-2xl mb-6 group-hover:rotate-6 transition-transform">
@@ -465,7 +520,7 @@
                         que el staff se enfoque en lo que importa: el cliente.</p>
                 </div>
                 <!-- Visión -->
-                <div class="bg-white dark:bg-slate-800 p-4 sm:p-8 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-700 transform transition-all hover:-translate-y-2 hover:shadow-xl group card-click-effect"
+                <div class="bg-white dark:bg-slate-800 p-4 sm:p-8 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-700 transform transition-all hover:-translate-y-2 hover:shadow-xl group card-click-effect hover-lift"
                     data-aos="fade-up" data-aos-delay="300">
                     <div
                         class="w-14 h-14 bg-purple-100 dark:bg-purple-900/40 text-purple-600 dark:text-purple-400 rounded-2xl flex items-center justify-center text-2xl mb-6 group-hover:rotate-6 transition-transform">
@@ -745,7 +800,7 @@
 
                         <div class="text-center lg:text-left">
                             <a href="app-debug.apk"
-                                class="download-btn inline-flex items-center justify-center gap-4 bg-brand-600 text-white hover:bg-brand-500 px-6 sm:px-8 py-4 sm:py-5 rounded-full font-bold text-lg sm:text-xl transition-all transform hover:-translate-y-1 shadow-[0_10px_30px_rgba(225,29,72,0.4)] w-full sm:w-auto group btn-click-effect">
+                                class="download-btn inline-flex items-center justify-center gap-4 bg-brand-600 text-white hover:bg-brand-500 px-6 sm:px-8 py-4 sm:py-5 rounded-full font-bold text-lg sm:text-xl transition-all transform hover:-translate-y-1 shadow-[0_10px_30px_rgba(225,29,72,0.4)] w-full sm:w-auto group btn-click-effect hover-lift">
                                 <i
                                     class="fa-solid fa-cloud-arrow-down text-xl sm:text-2xl group-hover:animate-bounce"></i>
                                 Descargar APK
@@ -1108,6 +1163,46 @@
 
         closeModalBtn.addEventListener('click', closeModal);
         backdrop.addEventListener('click', closeModal);
+
+        // Burger Rain Particle System (Profesional y Sutil)
+        function createBurgerRain() {
+            const container = document.body;
+            const burgerIcons = ['fa-hamburger', 'fa-pizza-slice', 'fa-hotdog', 'fa-fries'];
+            const count = window.innerWidth < 768 ? 6 : 12;
+
+            for (let i = 0; i < count; i++) {
+                const burger = document.createElement('i');
+                const randomIcon = burgerIcons[Math.floor(Math.random() * burgerIcons.length)];
+
+                burger.className = `fa-solid ${randomIcon} burger-particle burger-icon`;
+
+                const startX = Math.random() * 100;
+                const duration = Math.random() * 10 + 15;
+                const delay = Math.random() * 20;
+                const size = Math.random() * 1.2 + 0.6;
+
+                burger.style.left = `${startX}vw`;
+                burger.style.animationDuration = `${duration}s`;
+                burger.style.animationDelay = `-${delay}s`;
+                burger.style.fontSize = `${size}rem`;
+
+                container.appendChild(burger);
+            }
+        }
+
+        // Mouse Parallax para Blobs (Toque Premium)
+        document.addEventListener('mousemove', (e) => {
+            const moveX = (e.clientX - window.innerWidth / 2) * 0.01;
+            const moveY = (e.clientY - window.innerHeight / 2) * 0.01;
+
+            document.querySelectorAll('.blob').forEach((blob, index) => {
+                const depth = (index + 1) * 1.5;
+                blob.style.transform = `translate(${moveX * depth}px, ${moveY * depth}px)`;
+            });
+        });
+
+        // Iniciar efectos
+        createBurgerRain();
 
     </script>
 </body>
