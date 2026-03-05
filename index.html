@@ -46,6 +46,16 @@
     </script>
 
     <title>Descargar GoFood - Sistema de Gestión Gastronómica y POS para Restaurantes</title>
+    <script>
+        // Tema oscuro/claro preventivo (Evita el flash blanco)
+        const savedTheme = localStorage.getItem('theme');
+        const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (savedTheme === 'dark' || (!savedTheme && systemPrefersDark)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    </script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -206,6 +216,53 @@
 
         .dark .timeline::before {
             background: #334155;
+        }
+
+        /* Transiciones de Tema Suaves */
+        html {
+            transition: background-color 0.4s cubic-bezier(0.4, 0, 0.2, 1), color 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Estilo mejorado para el botón de tema */
+        #theme-toggle,
+        #theme-toggle-mobile {
+            position: relative;
+            overflow: hidden;
+            border-radius: 9999px;
+            padding: 0.5rem;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 1px solid transparent;
+        }
+
+        #theme-toggle:hover,
+        #theme-toggle-mobile:hover {
+            background: rgba(249, 115, 22, 0.1);
+            transform: rotate(15deg) scale(1.15);
+            border-color: rgba(249, 115, 22, 0.2);
+        }
+
+        .dark #theme-toggle:hover,
+        .dark #theme-toggle-mobile:hover {
+            background: rgba(253, 186, 116, 0.1);
+            box-shadow: 0 0 20px rgba(249, 115, 22, 0.2);
+            border-color: rgba(253, 186, 116, 0.2);
+        }
+
+        /* Ajustes de Color para un Modo Oscuro "Calor" */
+        .dark body {
+            background-color: #0f172a !important;
+            /* Slate 900 base */
+        }
+
+        .dark .glass-effect {
+            background: rgba(15, 23, 42, 0.8) !important;
+            border-bottom: 1px solid rgba(249, 115, 22, 0.1) !important;
+        }
+
+        .dark .bg-white,
+        .dark .bg-slate-50 {
+            background-color: #1e293b !important;
+            /* Slate 800 */
         }
     </style>
 </head>
@@ -915,31 +972,37 @@
             }
         });
 
-        // Tema oscuro/claro
-        const themeToggleBtn = document.getElementById('theme-toggle');
-        const themeIcon = document.getElementById('theme-icon');
-        const themeToggleMobileBtn = document.getElementById('theme-toggle-mobile');
-        const themeIconMobile = document.getElementById('theme-icon-mobile');
+        // Gestión Refactorizada del Tema (Modo Calor/Color)
+        const themeToggles = [document.getElementById('theme-toggle'), document.getElementById('theme-toggle-mobile')];
+        const themeIcons = [document.getElementById('theme-icon'), document.getElementById('theme-icon-mobile')];
         const htmlElement = document.documentElement;
 
-        function setTheme(isDark) {
-            if (isDark) {
-                htmlElement.classList.add('dark');
-                themeIcon.classList.replace('fa-moon', 'fa-sun');
-                themeIconMobile.classList.replace('fa-moon', 'fa-sun');
-                localStorage.setItem('theme', 'dark');
-            } else {
-                htmlElement.classList.remove('dark');
-                themeIcon.classList.replace('fa-sun', 'fa-moon');
-                themeIconMobile.classList.replace('fa-sun', 'fa-moon');
-                localStorage.setItem('theme', 'light');
-            }
+        function updateThemeUI(isDark) {
+            themeIcons.forEach(icon => {
+                if (isDark) {
+                    icon.classList.replace('fa-moon', 'fa-sun');
+                } else {
+                    icon.classList.replace('fa-sun', 'fa-moon');
+                }
+            });
         }
 
-        if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) { setTheme(true); } else { setTheme(false); }
-        const handleToggle = () => { setTheme(!htmlElement.classList.contains('dark')); };
-        themeToggleBtn.addEventListener('click', handleToggle);
-        themeToggleMobileBtn.addEventListener('click', handleToggle);
+        function toggleTheme() {
+            const isDark = htmlElement.classList.toggle('dark');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            updateThemeUI(isDark);
+
+            // Efecto visual extra al cambiar
+            document.body.style.pointerEvents = 'none';
+            setTimeout(() => document.body.style.pointerEvents = 'auto', 400);
+        }
+
+        // Inicializar iconos al cargar
+        updateThemeUI(htmlElement.classList.contains('dark'));
+
+        themeToggles.forEach(btn => {
+            if (btn) btn.addEventListener('click', toggleTheme);
+        });
 
         // Menú móvil
         const mobileMenuBtn = document.getElementById('mobile-menu-btn');
