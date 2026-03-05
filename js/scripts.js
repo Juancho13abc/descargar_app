@@ -214,30 +214,27 @@ const closeModal = () => {
 if (closeModalBtn) closeModalBtn.addEventListener('click', closeModal);
 if (backdrop) backdrop.addEventListener('click', closeModal);
 
-// Burger Rain Particle System (Profesional y Sutil)
+// Burger Rain Particle System con Emojis (100% confiable)
 function createBurgerRain() {
-    const container = document.body;
-    const burgerIcons = ['fa-hamburger', 'fa-pizza-slice', 'fa-hotdog', 'fa-bacon'];
-    const count = window.innerWidth < 768 ? 10 : 20;
+    const emojis = ['🍔', '🍕', '🌭', '🥤', '🍺', '🍟'];
+    const count = window.innerWidth < 768 ? 12 : 21;
 
     for (let i = 0; i < count; i++) {
-        const burger = document.createElement('i');
-        const randomIcon = burgerIcons[Math.floor(Math.random() * burgerIcons.length)];
-        
-        // Usando fas para FontAwesome Solid, más compatible
-        burger.className = `fas ${randomIcon} burger-particle burger-icon`;
-        
-        const startX = Math.random() * 100;
-        const duration = Math.random() * 8 + 12;
-        const delay = Math.random() * 20;
-        const size = Math.random() * 1.5 + 0.8;
+        const particle = document.createElement('span');
+        particle.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+        particle.className = 'burger-particle';
 
-        burger.style.left = `${startX}vw`;
-        burger.style.animationDuration = `${duration}s`;
-        burger.style.animationDelay = `-${delay}s`;
-        burger.style.fontSize = `${size}rem`;
-        
-        container.appendChild(burger);
+        const startX = Math.random() * 100;        // posición horizontal %
+        const duration = Math.random() * 8 + 10;     // 10–18 segundos (más lento = más premium)
+        const delay = -(Math.random() * duration); // delay negativo = ya cayendo al cargar
+        const size = Math.random() * 1.6 + 1.0;  // 1.0–2.6 rem
+
+        particle.style.left = `${startX}vw`;
+        particle.style.fontSize = `${size}rem`;
+        particle.style.animationDuration = `${duration}s`;
+        particle.style.animationDelay = `${delay}s`;
+
+        document.body.appendChild(particle);
     }
 }
 
@@ -245,14 +242,12 @@ function createBurgerRain() {
 document.addEventListener('mousemove', (e) => {
     const moveX = (e.clientX - window.innerWidth / 2) * 0.01;
     const moveY = (e.clientY - window.innerHeight / 2) * 0.01;
-    
+
     document.querySelectorAll('.blob').forEach((blob, index) => {
         const depth = (index + 1) * 1.5;
         blob.style.transform = `translate(${moveX * depth}px, ${moveY * depth}px)`;
     });
 });
 
-// Iniciar efectos cuando el DOM esté listo
-document.addEventListener('DOMContentLoaded', () => {
-    createBurgerRain();
-});
+// Iniciar lluvia al cargar el DOM
+document.addEventListener('DOMContentLoaded', createBurgerRain);
