@@ -1,0 +1,230 @@
+body {
+    font-family: 'Inter', sans-serif;
+    transition: background-color 0.5s ease;
+}
+
+#scroll-progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 5px;
+    background: linear-gradient(to right, #f97316, #fb923c, #fdba74);
+    z-index: 200;
+    transition: width 0.1s ease-out;
+    box-shadow: 0 0 10px rgba(244, 63, 94, 0.5);
+}
+
+.glass-effect {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    transition: all 0.4s ease;
+}
+
+.dark .glass-effect {
+    background: rgba(15, 23, 42, 0.7);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Reveal on Scroll Core */
+.reveal-on-scroll {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: all 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: transform, opacity;
+}
+
+.reveal-on-scroll.active {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Mobile specific fixes for smoother reveals */
+@media (max-width: 768px) {
+    .reveal-on-scroll {
+        transform: translateY(15px);
+        /* More subtle for mobile */
+        transition-duration: 0.5s;
+    }
+
+    section {
+        min-height: auto !important;
+        /* Force remove min-height */
+    }
+}
+
+/* Tactile Touch Feedback */
+@media (hover: none) {
+
+    .btn-click-effect:active,
+    .card-click-effect:active {
+        transform: scale(0.96);
+        transition: transform 0.1s ease;
+    }
+}
+
+/* Efecto Magnético para botones */
+.magnetic-btn {
+    transition: transform 0.2s cubic-bezier(0.33, 1, 0.68, 1);
+}
+
+.blob {
+    position: absolute;
+    filter: blur(70px);
+    z-index: -1;
+    opacity: 0.5;
+    transition: transform 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+.floating {
+    animation: float 6s ease-in-out infinite;
+}
+
+@keyframes float {
+    0% {
+        transform: translateY(0px) rotate(0deg);
+    }
+
+    50% {
+        transform: translateY(-15px) rotate(1deg);
+    }
+
+    100% {
+        transform: translateY(0px) rotate(0deg);
+    }
+}
+
+.shimmer {
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.3) 50%, rgba(255, 255, 255, 0) 100%);
+    background-size: 200% 100%;
+    animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: -200% 0;
+    }
+
+    100% {
+        background-position: 200% 0;
+    }
+}
+
+/* Animaciones Custom para el flujo de estado */
+.timeline::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 1.5rem;
+    width: 2px;
+    background: #e2e8f0;
+}
+
+.dark .timeline::before {
+    background: #334155;
+}
+
+/* Transiciones de Tema Suaves */
+html {
+    transition: background-color 0.4s cubic-bezier(0.4, 0, 0.2, 1), color 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Estilo mejorado para el botón de tema */
+#theme-toggle,
+#theme-toggle-mobile {
+    position: relative;
+    overflow: hidden;
+    border-radius: 9999px;
+    padding: 0.5rem;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    border: 1px solid transparent;
+}
+
+#theme-toggle:hover,
+#theme-toggle-mobile:hover {
+    background: rgba(249, 115, 22, 0.1);
+    transform: rotate(15deg) scale(1.15);
+    border-color: rgba(249, 115, 22, 0.2);
+}
+
+.dark #theme-toggle:hover,
+.dark #theme-toggle-mobile:hover {
+    background: rgba(253, 186, 116, 0.1);
+    box-shadow: 0 0 20px rgba(249, 115, 22, 0.2);
+    border-color: rgba(253, 186, 116, 0.2);
+}
+
+/* Ajustes de Color para un Modo Oscuro "Calor" */
+.dark body {
+    background-color: #0f172a !important;
+    /* Slate 900 base */
+}
+
+.dark .glass-effect {
+    background: rgba(15, 23, 42, 0.8) !important;
+    border-bottom: 1px solid rgba(249, 115, 22, 0.1) !important;
+}
+
+.dark .bg-white,
+.dark .bg-slate-50 {
+    background-color: #1e293b !important;
+    /* Slate 800 */
+}
+
+/* Burger Rain System */
+.burger-particle {
+    position: fixed;
+    pointer-events: none;
+    z-index: 50;
+    /* Aumentado para estar sobre el fondo pero bajo modales */
+    opacity: 0.4;
+    /* Aumentado para visibilidad */
+    will-change: transform;
+    animation: fall linear infinite;
+}
+
+@keyframes fall {
+    0% {
+        transform: translateY(-10vh) rotate(0deg);
+        opacity: 0;
+    }
+
+    10% {
+        opacity: 0.15;
+    }
+
+    90% {
+        opacity: 0.15;
+    }
+
+    100% {
+        transform: translateY(110vh) rotate(360deg);
+        opacity: 0;
+    }
+}
+
+/* Hover-Lift Effects Premium */
+.hover-lift {
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.4s ease;
+}
+
+.hover-lift:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 20px 40px rgba(249, 115, 22, 0.1);
+}
+
+.dark .hover-lift:hover {
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+}
+
+/* Burger Icon Styling */
+.burger-icon {
+    color: #f97316;
+    filter: drop-shadow(0 0 5px rgba(249, 115, 22, 0.3));
+}
+
+/* Smoothing the Scroll Progress Shadow */
+#scroll-progress {
+    box-shadow: 0 0 15px rgba(249, 115, 22, 0.4);
+}
