@@ -1191,27 +1191,6 @@
                 container.appendChild(burger);
             }
         }
-        const count = window.innerWidth < 768 ? 6 : 12;
-
-        for (let i = 0; i < count; i++) {
-            const burger = document.createElement('i');
-            const randomIcon = burgerIcons[Math.floor(Math.random() * burgerIcons.length)];
-
-            burger.className = `fa-solid ${randomIcon} burger-particle burger-icon`;
-
-            const startX = Math.random() * 100;
-            const duration = Math.random() * 10 + 15;
-            const delay = Math.random() * 20;
-            const size = Math.random() * 1.2 + 0.6;
-
-            burger.style.left = `${startX}vw`;
-            burger.style.animationDuration = `${duration}s`;
-            burger.style.animationDelay = `-${delay}s`;
-            burger.style.fontSize = `${size}rem`;
-
-            container.appendChild(burger);
-        }
-        }
 
         // Mouse Parallax para Blobs (Toque Premium)
         document.addEventListener('mousemove', (e) => {
